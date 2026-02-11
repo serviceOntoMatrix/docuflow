@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Allow PHP files to execute normally
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+</IfModule>
+
+# Ensure PHP handler
+AddHandler application/x-httpd-php .php
