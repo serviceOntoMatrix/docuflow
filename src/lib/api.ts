@@ -407,6 +407,47 @@ export const adminApi = {
   },
 };
 
+// Email Notification Preferences API
+export const emailPreferencesApi = {
+  get: () => apiRequest<any>('/email-preferences/index.php'),
+  update: (data: Record<string, any>) =>
+    apiRequest<any>('/email-preferences/index.php', { method: 'POST', body: JSON.stringify(data) }),
+};
+
+// Document Categories API
+export const documentCategoriesApi = {
+  list: (firmId?: string) => apiRequest<any[]>(`/document-categories/index.php${firmId ? '?firm_id=' + firmId : ''}`),
+  create: (data: { name: string; color?: string; sort_order?: number }) =>
+    apiRequest<any>('/document-categories/index.php', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) =>
+    apiRequest<any>(`/document-categories/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: string) =>
+    apiRequest<any>(`/document-categories/index.php?id=${id}`, { method: 'DELETE' }),
+};
+
+// Company Requests API (Client self-service)
+export const companyRequestsApi = {
+  list: () => apiRequest<any[]>('/company-requests/index.php'),
+  create: (data: { company_name: string; reason?: string }) =>
+    apiRequest<any>('/company-requests/index.php', { method: 'POST', body: JSON.stringify(data) }),
+  review: (id: string, data: { status: 'approved' | 'rejected'; review_notes?: string }) =>
+    apiRequest<any>(`/company-requests/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+};
+
+// Firm Audit Trail API
+export const firmAuditApi = {
+  list: (page?: number) => apiRequest<any>(`/firm-audit/index.php${page ? '?page=' + page : ''}`),
+};
+
+// Advanced Search API
+export const searchApi = {
+  search: (q: string, type?: string) => {
+    const params = new URLSearchParams({ q });
+    if (type) params.set('type', type);
+    return apiRequest<any>(`/search/index.php?${params.toString()}`);
+  },
+};
+
 // Clarifications API
 export const clarificationsApi = {
   // Get all documents with clarifications for the user

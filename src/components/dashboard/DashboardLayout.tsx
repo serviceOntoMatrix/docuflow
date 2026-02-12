@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import NotificationPopover from "./NotificationPopover";
+import ThemeToggle from "./ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import {
@@ -166,6 +167,7 @@ export default function DashboardLayout({ children, navItems, title, unreadCount
           </button>
           <h1 className="text-lg font-semibold text-foreground">{title} Dashboard</h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationPopover onNewNotification={handleNewNotification} onNotificationClick={handleNotificationClick} />
           </div>
         </header>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import EmailPreferences from '@/components/dashboard/EmailPreferences';
 import {
   Select,
   SelectContent,
@@ -243,6 +244,11 @@ export default function AdminSettings() {
         <Button onClick={saveSettings} disabled={saving} className="min-w-[120px]">
           {saving ? 'Saving...' : 'Save Settings'}
         </Button>
+      </div>
+
+      {/* Email Notification Preferences */}
+      <div className="mt-8">
+        <EmailPreferences userRole="firm" />
       </div>
     </div>
   );

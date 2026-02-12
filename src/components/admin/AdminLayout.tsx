@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import {
   LayoutDashboard,
   Building2,
@@ -126,6 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
           <h1 className="text-lg font-semibold text-foreground">Super Admin Panel</h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
               ADMIN
             </span>

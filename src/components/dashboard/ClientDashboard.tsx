@@ -73,6 +73,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Building } from "lucide-react";
 import ClientProfileSettings from "./ClientProfileSettings";
+import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 import NotificationPopover from "./NotificationPopover";
 
@@ -1667,6 +1668,7 @@ function ClientDashboardContent({ onFirmId }: { onFirmId: (firmId: string | null
           </button>
           <h1 className="text-lg font-semibold text-foreground">Client Dashboard</h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationPopover
               onNewNotification={(n) => {
                 toast({ title: n.title, description: n.message });

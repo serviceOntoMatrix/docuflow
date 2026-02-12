@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, User, Lock, Save, Eye, EyeOff } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import EmailPreferences from "./EmailPreferences";
 
 interface ProfileData {
   full_name: string;
@@ -15,8 +16,9 @@ interface ProfileData {
   phone: string;
 }
 
-export default function ClientProfileSettings() {
-  const { user } = useAuth();
+export default function ClientProfileSettings({ userRole }: { userRole?: string }) {
+  const { user, userRole: contextRole } = useAuth();
+  const effectiveRole = userRole || contextRole || "client";
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -299,6 +301,9 @@ export default function ClientProfileSettings() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Email Notification Preferences */}
+      <EmailPreferences userRole={effectiveRole} />
     </div>
   );
 }
