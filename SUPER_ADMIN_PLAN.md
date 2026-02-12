@@ -1,5 +1,19 @@
 # DocqFlow - Bug Report & Super Admin Architecture Plan
 
+## Super Admin Credentials
+
+| Field    | Value                         |
+|----------|-------------------------------|
+| Email    | `superadmin@docqflow.com`     |
+| Password | `DocqFlow@Super2026!`         |
+| Role     | `super_admin`                 |
+| Login    | Use the standard `/auth` page |
+
+> After running the migration (`migrations/001_super_admin.sql`), log in at `/auth` with the above credentials.
+> You will be automatically redirected to the **Super Admin Panel** at `/admin`.
+
+---
+
 ## Table of Contents
 1. [Current System Architecture](#current-system-architecture)
 2. [Bugs & Issues Identified](#bugs--issues-identified)
