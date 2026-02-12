@@ -13,6 +13,8 @@ import {
   Menu,
   X,
   Shield,
+  ScrollText,
+  Megaphone,
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +22,8 @@ const navItems = [
   { icon: Building2, label: "Firms", href: "/admin/firms" },
   { icon: Users, label: "Users", href: "/admin/users" },
   { icon: BarChart3, label: "Usage & Billing", href: "/admin/usage" },
+  { icon: Megaphone, label: "Announcements", href: "/admin/announcements" },
+  { icon: ScrollText, label: "Audit Logs", href: "/admin/audit" },
   { icon: Settings, label: "Platform Settings", href: "/admin/settings" },
 ];
 
