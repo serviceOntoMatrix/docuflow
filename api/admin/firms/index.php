@@ -167,6 +167,35 @@ try {
                 $params[] = $input['name'];
                 $auditDetails['name'] = $input['name'];
             }
+            // Custom pricing overrides (per-firm)
+            if (array_key_exists('custom_base_price', $input)) {
+                $updates[] = "custom_base_price = ?";
+                $params[] = $input['custom_base_price'];
+                $auditDetails['custom_base_price'] = $input['custom_base_price'];
+            }
+            if (array_key_exists('custom_price_per_client', $input)) {
+                $updates[] = "custom_price_per_client = ?";
+                $params[] = $input['custom_price_per_client'];
+                $auditDetails['custom_price_per_client'] = $input['custom_price_per_client'];
+            }
+            if (array_key_exists('custom_price_per_document', $input)) {
+                $updates[] = "custom_price_per_document = ?";
+                $params[] = $input['custom_price_per_document'];
+                $auditDetails['custom_price_per_document'] = $input['custom_price_per_document'];
+            }
+            if (isset($input['billing_notes'])) {
+                $updates[] = "billing_notes = ?";
+                $params[] = $input['billing_notes'];
+            }
+            if (isset($input['billing_status'])) {
+                $updates[] = "billing_status = ?";
+                $params[] = $input['billing_status'];
+                $auditDetails['billing_status'] = $input['billing_status'];
+            }
+            if (array_key_exists('trial_ends_at', $input)) {
+                $updates[] = "trial_ends_at = ?";
+                $params[] = $input['trial_ends_at'];
+            }
             
             if (count($updates) > 0) {
                 $params[] = $firmId;

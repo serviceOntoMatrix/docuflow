@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ import {
   CheckCircle,
   Trash2,
   BarChart3,
+  Eye,
 } from "lucide-react";
 
 interface Firm {
@@ -56,6 +58,7 @@ interface Firm {
 }
 
 export default function AdminFirmsPage() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [firms, setFirms] = useState<Firm[]>([]);
   const [loading, setLoading] = useState(true);
@@ -287,7 +290,10 @@ export default function AdminFirmsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-1 justify-end">
-                          <Button variant="ghost" size="sm" onClick={() => openEditDialog(firm)} title="Edit">
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/firms/${firm.id}`)} title="View Detail & Pricing">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => openEditDialog(firm)} title="Quick Edit">
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button

@@ -82,20 +82,46 @@ try {
         $stmt->execute([$firmId]);
         $monthlyTrend = $stmt->fetchAll();
         
-        // Billing estimate
+        // Billing estimate (custom pricing overrides plan defaults)
         $planStmt = $db->prepare("SELECT * FROM plans WHERE slug = ?");
         $planStmt->execute([$firmUsage['plan'] ?: 'free']);
         $planInfo = $planStmt->fetch();
         
+        // Get custom pricing for this firm
+        $customStmt = $db->prepare("SELECT custom_base_price, custom_price_per_client, custom_price_per_document, billing_status, billing_notes FROM firms WHERE id = ?");
+        $customStmt->execute([$firmId]);
+        $customPricing = $customStmt->fetch();
+        
         $billingEstimate = null;
         if ($planInfo) {
-            $clientCharge = $firmUsage['current_clients'] * (float)$planInfo['price_per_client'];
-            $docCharge = $firmUsage['documents_this_period'] * (float)$planInfo['price_per_document'];
+            // Use custom pricing if set, otherwise fall back to plan defaults
+            $basePrice = ($customPricing && $customPricing['custom_base_price'] !== null)
+                ? (float)$customPricing['custom_base_price']
+                : (float)$planInfo['base_price'];
+            $perClient = ($customPricing && $customPricing['custom_price_per_client'] !== null)
+                ? (float)$customPricing['custom_price_per_client']
+                : (float)$planInfo['price_per_client'];
+            $perDocument = ($customPricing && $customPricing['custom_price_per_document'] !== null)
+                ? (float)$customPricing['custom_price_per_document']
+                : (float)$planInfo['price_per_document'];
+            
+            $clientCharge = $firmUsage['current_clients'] * $perClient;
+            $docCharge = $firmUsage['documents_this_period'] * $perDocument;
             $billingEstimate = [
-                'base_price' => (float)$planInfo['base_price'],
+                'base_price' => $basePrice,
+                'price_per_client' => $perClient,
+                'price_per_document' => $perDocument,
+                'client_count' => $firmUsage['current_clients'],
+                'document_count' => $firmUsage['documents_this_period'],
                 'client_charge' => round($clientCharge, 2),
                 'document_charge' => round($docCharge, 2),
-                'estimated_total' => round((float)$planInfo['base_price'] + $clientCharge + $docCharge, 2),
+                'estimated_total' => round($basePrice + $clientCharge + $docCharge, 2),
+                'is_custom_pricing' => ($customPricing && ($customPricing['custom_base_price'] !== null || $customPricing['custom_price_per_client'] !== null || $customPricing['custom_price_per_document'] !== null)),
+                'billing_status' => $customPricing['billing_status'] ?? 'active',
+                'billing_notes' => $customPricing['billing_notes'] ?? null,
+                'plan_base_price' => (float)$planInfo['base_price'],
+                'plan_per_client' => (float)$planInfo['price_per_client'],
+                'plan_per_document' => (float)$planInfo['price_per_document'],
             ];
         }
         

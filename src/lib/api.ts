@@ -394,6 +394,17 @@ export const adminApi = {
       return apiRequest<any>(`/admin/audit/index.php${q ? '?' + q : ''}`);
     },
   },
+
+  // Announcements
+  announcements: {
+    list: () => apiRequest<any>('/admin/announcements/index.php'),
+    create: (data: any) =>
+      apiRequest<any>('/admin/announcements/index.php', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any) =>
+      apiRequest<any>(`/admin/announcements/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) =>
+      apiRequest<any>(`/admin/announcements/index.php?id=${id}`, { method: 'DELETE' }),
+  },
 };
 
 // Clarifications API
