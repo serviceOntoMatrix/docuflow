@@ -110,9 +110,16 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES => false
                 ]
             );
-            // Set MySQL session timezone
-            $timezone = defined('TIMEZONE') ? TIMEZONE : '+00:00';
-            $this->connection->exec("SET time_zone = '" . $timezone . "'");
+            // Set MySQL session timezone (use offset format for compatibility)
+            try {
+                $timezone = defined('TIMEZONE') ? TIMEZONE : '+00:00';
+                $this->connection->exec("SET time_zone = '" . $timezone . "'");
+            } catch (PDOException $tzErr) {
+                // Named timezone failed (mysql.time_zone_name table not populated)
+                // Fall back to UTC offset
+                error_log('Named timezone failed, using UTC: ' . $tzErr->getMessage());
+                $this->connection->exec("SET time_zone = '+00:00'");
+            }
         } catch (PDOException $e) {
             // Don't output here - let the calling code handle it
             error_log('Database connection failed: ' . $e->getMessage());

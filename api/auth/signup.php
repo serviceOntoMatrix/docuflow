@@ -22,6 +22,7 @@ $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $fullName = trim($input['full_name'] ?? '');
 $role = $input['role'] ?? 'client';
+$inviteToken = $input['invite_token'] ?? null;
 
 // Validation
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -40,6 +41,42 @@ if (!in_array($role, ['firm', 'accountant', 'client'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid role']);
     exit;
+}
+
+// SECURITY: Only 'firm' role can self-register. Accountants and clients require a valid invite token.
+if ($role !== 'firm' && empty($inviteToken)) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Accountants and clients must register via an invitation link']);
+    exit;
+}
+
+// If an invite token is provided, validate it
+$inviteData = null;
+if (!empty($inviteToken)) {
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT * FROM invite_tokens 
+            WHERE token = ? AND used_at IS NULL AND expires_at > NOW()
+        ");
+        $stmt->execute([$inviteToken]);
+        $inviteData = $stmt->fetch();
+        
+        if (!$inviteData) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid or expired invitation token']);
+            exit;
+        }
+        
+        // Ensure the role matches what the invite specifies
+        if ($inviteData['role'] !== $role) {
+            $role = $inviteData['role']; // Use the role from the invite
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to validate invitation']);
+        exit;
+    }
 }
 
 try {

@@ -58,6 +58,16 @@ try {
             $user = requireAuth();
             $input = json_decode(file_get_contents('php://input'), true);
             
+            // SECURITY: Verify user owns the firm they're creating invites for
+            $authStmt = $db->prepare("SELECT id FROM firms WHERE id = ? AND owner_id = ?");
+            $authStmt->execute([$input['firm_id'], $user['user_id']]);
+            $isSuperAdmin = isset($user['role']) && $user['role'] === 'super_admin';
+            if (!$authStmt->fetch() && !$isSuperAdmin) {
+                http_response_code(403);
+                echo json_encode(['error' => 'You can only create invites for your own firm']);
+                exit;
+            }
+            
             $inviteId = generateUUID();
             $token = generateUUID();
             $expiresAt = date('Y-m-d H:i:s', strtotime('+48 hours'));

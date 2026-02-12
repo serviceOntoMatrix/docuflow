@@ -305,6 +305,97 @@ export const uploadFile = async (file: File, clientId?: string, companyId?: stri
   return response.json();
 };
 
+// =====================================================
+// SUPER ADMIN APIs
+// =====================================================
+
+export const adminApi = {
+  // Dashboard stats
+  getDashboard: () => apiRequest<any>('/admin/dashboard.php'),
+
+  // Firms management
+  firms: {
+    list: (params?: { search?: string; status?: string; plan?: string; page?: number; per_page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.search) qs.set('search', params.search);
+      if (params?.status) qs.set('status', params.status);
+      if (params?.plan) qs.set('plan', params.plan);
+      if (params?.page) qs.set('page', String(params.page));
+      if (params?.per_page) qs.set('per_page', String(params.per_page));
+      const q = qs.toString();
+      return apiRequest<any>(`/admin/firms/index.php${q ? '?' + q : ''}`);
+    },
+    get: (id: string) => apiRequest<any>(`/admin/firms/index.php?id=${id}`),
+    update: (id: string, data: any) =>
+      apiRequest<any>(`/admin/firms/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) =>
+      apiRequest<any>(`/admin/firms/index.php?id=${id}`, { method: 'DELETE' }),
+  },
+
+  // Users management
+  users: {
+    list: (params?: { search?: string; role?: string; firm_id?: string; page?: number; per_page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.search) qs.set('search', params.search);
+      if (params?.role) qs.set('role', params.role);
+      if (params?.firm_id) qs.set('firm_id', params.firm_id);
+      if (params?.page) qs.set('page', String(params.page));
+      if (params?.per_page) qs.set('per_page', String(params.per_page));
+      const q = qs.toString();
+      return apiRequest<any>(`/admin/users/index.php${q ? '?' + q : ''}`);
+    },
+    update: (id: string, data: any) =>
+      apiRequest<any>(`/admin/users/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) =>
+      apiRequest<any>(`/admin/users/index.php?id=${id}`, { method: 'DELETE' }),
+  },
+
+  // Platform settings
+  settings: {
+    get: () => apiRequest<any>('/admin/settings/index.php'),
+    update: (data: Record<string, string>) =>
+      apiRequest<any>('/admin/settings/index.php', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  // Usage tracking
+  usage: {
+    getAll: (period?: string) => {
+      const qs = period ? `?period=${period}` : '';
+      return apiRequest<any>(`/admin/usage/index.php${qs}`);
+    },
+    getByFirm: (firmId: string, period?: string) => {
+      const qs = new URLSearchParams({ firm_id: firmId });
+      if (period) qs.set('period', period);
+      return apiRequest<any>(`/admin/usage/index.php?${qs.toString()}`);
+    },
+  },
+
+  // Plans management
+  plans: {
+    list: () => apiRequest<any>('/admin/plans/index.php'),
+    create: (data: any) =>
+      apiRequest<any>('/admin/plans/index.php', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any) =>
+      apiRequest<any>(`/admin/plans/index.php?id=${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) =>
+      apiRequest<any>(`/admin/plans/index.php?id=${id}`, { method: 'DELETE' }),
+  },
+
+  // Audit logs
+  audit: {
+    list: (params?: { search?: string; action?: string; entity_type?: string; page?: number; per_page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.search) qs.set('search', params.search);
+      if (params?.action) qs.set('action', params.action);
+      if (params?.entity_type) qs.set('entity_type', params.entity_type);
+      if (params?.page) qs.set('page', String(params.page));
+      if (params?.per_page) qs.set('per_page', String(params.per_page));
+      const q = qs.toString();
+      return apiRequest<any>(`/admin/audit/index.php${q ? '?' + q : ''}`);
+    },
+  },
+};
+
 // Clarifications API
 export const clarificationsApi = {
   // Get all documents with clarifications for the user

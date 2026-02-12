@@ -82,6 +82,22 @@ if ($clientId) {
             $file['size']
         ]);
         
+        // Track usage: find the firm for this client and log the event
+        try {
+            $firmStmt = $db->prepare("SELECT firm_id FROM clients WHERE id = ?");
+            $firmStmt->execute([$clientId]);
+            $clientFirm = $firmStmt->fetch();
+            if ($clientFirm && $clientFirm['firm_id']) {
+                trackUsage($db, $clientFirm['firm_id'], 'document_uploaded', $docId, $file['size'], [
+                    'file_name' => $file['name'],
+                    'file_type' => $file['type'],
+                    'file_size' => $file['size']
+                ]);
+            }
+        } catch (Exception $trackErr) {
+            error_log('Usage tracking error: ' . $trackErr->getMessage());
+        }
+        
         echo json_encode([
             'data' => [
                 'document_id' => $docId,

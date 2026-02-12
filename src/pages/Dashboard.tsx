@@ -68,6 +68,10 @@ export default function Dashboard() {
   }
 
   switch (userRole) {
+    case "super_admin":
+      // Redirect to admin dashboard
+      navigate("/admin", { replace: true });
+      return null;
     case "firm":
       return <FirmDashboard />;
     case "accountant":
