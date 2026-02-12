@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { adminApi } from "@/lib/api";
+import { exportToCSV } from "@/lib/csv-export";
 import {
   Search,
   BarChart3,
@@ -24,6 +25,7 @@ import {
   Building2,
   TrendingUp,
   Calendar,
+  Download,
 } from "lucide-react";
 
 interface FirmUsage {
@@ -91,11 +93,23 @@ export default function AdminUsagePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold">Usage & Billing</h2>
-        <p className="text-muted-foreground">
-          Track portal usage per firm. Billing: base price + per-client + per-document charges.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Usage & Billing</h2>
+          <p className="text-muted-foreground">
+            Track portal usage per firm. Billing: base price + per-client + per-document charges.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => {
+          exportToCSV(filteredFirms, "usage_billing", [
+            { key: "name", label: "Firm" }, { key: "plan", label: "Plan" }, { key: "status", label: "Status" },
+            { key: "clients_count", label: "Clients" }, { key: "accountants_count", label: "Accountants" },
+            { key: "total_documents", label: "Total Docs" }, { key: "documents_this_period", label: "Period Docs" },
+            { key: "storage_mb", label: "Storage (MB)" }, { key: "estimated_bill", label: "Est. Bill ($)" },
+          ]);
+        }}>
+          <Download className="w-4 h-4 mr-2" /> Export CSV
+        </Button>
       </div>
 
       {/* Summary Cards */}

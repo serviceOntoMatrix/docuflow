@@ -131,7 +131,7 @@ interface ClientReminder {
 type TabType = "home" | "documents" | "notifications" | "profile" | "clarifications" | "companies" | "reminders";
 
 const navItems = [
-  { icon: Home, label: "Home", tab: "home" as TabType },
+  { icon: Home, label: "Overview", tab: "home" as TabType },
   { icon: Building, label: "Companies", tab: "companies" as TabType },
   { icon: FileText, label: "Documents", tab: "documents" as TabType },
   { icon: AlertCircle, label: "Clarifications", tab: "clarifications" as TabType },

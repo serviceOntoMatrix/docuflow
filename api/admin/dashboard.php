@@ -103,6 +103,77 @@ try {
     ");
     $recentActivity = $stmt->fetchAll();
 
+    // Monthly trends (last 12 months) for charts
+    $monthlyFirms = [];
+    $monthlyUsers = [];
+    $monthlyDocs = [];
+    
+    $stmt = $db->query("
+        SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
+        FROM firms WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        GROUP BY month ORDER BY month ASC
+    ");
+    foreach ($stmt->fetchAll() as $r) { $monthlyFirms[$r['month']] = (int)$r['count']; }
+    
+    $stmt = $db->query("
+        SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
+        FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        GROUP BY month ORDER BY month ASC
+    ");
+    foreach ($stmt->fetchAll() as $r) { $monthlyUsers[$r['month']] = (int)$r['count']; }
+    
+    $stmt = $db->query("
+        SELECT DATE_FORMAT(uploaded_at, '%Y-%m') as month, COUNT(*) as count
+        FROM documents WHERE uploaded_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        GROUP BY month ORDER BY month ASC
+    ");
+    foreach ($stmt->fetchAll() as $r) { $monthlyDocs[$r['month']] = (int)$r['count']; }
+
+    // Build unified monthly_trends array
+    $monthlyTrends = [];
+    for ($i = 11; $i >= 0; $i--) {
+        $m = date('Y-m', strtotime("-$i months"));
+        $monthlyTrends[] = [
+            'month' => $m,
+            'label' => date('M Y', strtotime("-$i months")),
+            'firms' => $monthlyFirms[$m] ?? 0,
+            'users' => $monthlyUsers[$m] ?? 0,
+            'documents' => $monthlyDocs[$m] ?? 0,
+        ];
+    }
+
+    // Firm onboarding stages
+    $stmt = $db->query("
+        SELECT f.id, f.name, f.created_at, f.status, f.plan,
+               (SELECT COUNT(*) FROM firm_accountants fa WHERE fa.firm_id = f.id) as has_accountant,
+               (SELECT COUNT(*) FROM clients c WHERE c.firm_id = f.id) as has_client,
+               (SELECT COUNT(*) FROM documents d JOIN clients c2 ON d.client_id = c2.id WHERE c2.firm_id = f.id) as has_document
+        FROM firms f
+        ORDER BY f.created_at DESC
+    ");
+    $firmOnboarding = [];
+    foreach ($stmt->fetchAll() as $f) {
+        $stage = 'registered';
+        if ((int)$f['has_accountant'] > 0) $stage = 'accountant_added';
+        if ((int)$f['has_client'] > 0) $stage = 'client_invited';
+        if ((int)$f['has_document'] > 0) $stage = 'active';
+        $firmOnboarding[] = [
+            'id' => $f['id'],
+            'name' => $f['name'],
+            'plan' => $f['plan'],
+            'status' => $f['status'],
+            'stage' => $stage,
+            'created_at' => $f['created_at'],
+            'accountants' => (int)$f['has_accountant'],
+            'clients' => (int)$f['has_client'],
+            'documents' => (int)$f['has_document'],
+        ];
+    }
+
+    // Stage counts
+    $stageCounts = ['registered' => 0, 'accountant_added' => 0, 'client_invited' => 0, 'active' => 0];
+    foreach ($firmOnboarding as $fo) { $stageCounts[$fo['stage']] = ($stageCounts[$fo['stage']] ?? 0) + 1; }
+
     echo json_encode([
         'success' => true,
         'data' => [
@@ -132,6 +203,11 @@ try {
             ],
             'top_firms' => $topFirms,
             'recent_activity' => $recentActivity,
+            'monthly_trends' => $monthlyTrends,
+            'onboarding' => [
+                'stages' => $stageCounts,
+                'firms' => $firmOnboarding,
+            ],
         ]
     ]);
 

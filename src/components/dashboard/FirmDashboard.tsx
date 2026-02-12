@@ -31,7 +31,7 @@ const navItems = [
   { icon: FileText, label: "Documents", href: "/dashboard/documents" },
   { icon: AlertTriangle, label: "Clarifications", href: "/dashboard/clarifications" },
   { icon: Clock, label: "Reminders", href: "/dashboard/reminders" },
-  { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
+  { icon: Bell, label: "Notifications", href: "/dashboard/notifications", isNotification: true },
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
