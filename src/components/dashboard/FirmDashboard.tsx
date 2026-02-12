@@ -241,15 +241,6 @@ export default function FirmDashboard() {
     }
 
     if (!user) return;
-    
-    if (!firmId) {
-      toast({
-        title: "Error",
-        description: "No firm found. Please refresh the page or contact support.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setLoading(true);
 

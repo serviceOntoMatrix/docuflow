@@ -77,6 +77,83 @@ function requireAuth() {
     return $user;
 }
 
+/**
+ * Require super_admin role. Returns the user payload or exits with 403.
+ */
+function requireSuperAdmin() {
+    $user = requireAuth();
+    if (!isset($user['role']) || $user['role'] !== 'super_admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Super Admin access required']);
+        exit;
+    }
+    return $user;
+}
+
+/**
+ * Check if the current user is a firm member (owner or accountant).
+ * Returns true if the user belongs to the firm, false otherwise.
+ * Super admins always return true.
+ */
+function isUserInFirm($db, $userId, $firmId, $userRole = null) {
+    if ($userRole === 'super_admin') return true;
+    
+    $stmt = $db->prepare("
+        SELECT id FROM firms WHERE id = ? AND owner_id = ?
+        UNION
+        SELECT firm_id FROM firm_accountants WHERE firm_id = ? AND accountant_id = ?
+        UNION
+        SELECT firm_id FROM clients WHERE firm_id = ? AND user_id = ?
+    ");
+    $stmt->execute([$firmId, $userId, $firmId, $userId, $firmId, $userId]);
+    return (bool)$stmt->fetch();
+}
+
+/**
+ * Log an audit event.
+ */
+function logAudit($db, $userId, $action, $entityType = null, $entityId = null, $details = null) {
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO audit_logs (id, user_id, action, entity_type, entity_id, details, ip_address)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            generateUUID(),
+            $userId,
+            $action,
+            $entityType,
+            $entityId,
+            $details ? json_encode($details) : null,
+            $_SERVER['REMOTE_ADDR'] ?? null
+        ]);
+    } catch (Exception $e) {
+        error_log('Audit log failed: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Record a usage event for a firm.
+ */
+function trackUsage($db, $firmId, $eventType, $entityId = null, $deltaValue = 1, $metadata = null) {
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO usage_events (id, firm_id, event_type, entity_id, delta_value, metadata)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            generateUUID(),
+            $firmId,
+            $eventType,
+            $entityId,
+            $deltaValue,
+            $metadata ? json_encode($metadata) : null
+        ]);
+    } catch (Exception $e) {
+        error_log('Usage tracking failed: ' . $e->getMessage());
+    }
+}
+
 function generateUUID() {
     return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
         mt_rand(0, 0xffff), mt_rand(0, 0xffff),

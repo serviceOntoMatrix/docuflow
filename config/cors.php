@@ -6,9 +6,12 @@
 function setCorsHeaders() {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     
-    // Allow specific origins or all for development
-    if (in_array($origin, ALLOWED_ORIGINS) || true) { // true for development
-        header("Access-Control-Allow-Origin: " . ($origin ?: '*'));
+    // Validate origin against allowed list
+    if (!empty($origin) && defined('ALLOWED_ORIGINS') && in_array($origin, ALLOWED_ORIGINS)) {
+        header("Access-Control-Allow-Origin: " . $origin);
+    } elseif (empty($origin)) {
+        // Allow same-origin requests (no Origin header)
+        header("Access-Control-Allow-Origin: *");
     }
     
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");

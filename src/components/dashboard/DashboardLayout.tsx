@@ -22,6 +22,7 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   label: string;
   href: string;
+  isNotification?: boolean;
 }
 
 interface DashboardLayoutProps {
@@ -96,7 +97,6 @@ export default function DashboardLayout({ children, navItems, title, unreadCount
           <div className="flex-1 min-h-0">
             <nav className="h-full overflow-y-auto p-4 space-y-1">
               {navItems.map((item, index) => {
-                console.log(`[DashboardLayout][${title}] Rendering nav item:`, index, item.label, item.href);
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
