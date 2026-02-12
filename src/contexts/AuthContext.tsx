@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { authApi } from "@/lib/api";
 import { applyFirmTheme } from "@/lib/theme-vars";
 
-type UserRole = "firm" | "accountant" | "client" | null;
+type UserRole = "super_admin" | "firm" | "accountant" | "client" | null;
 
 interface User {
   id: string;
@@ -22,7 +22,7 @@ interface AuthContextType {
   session: Session | null;
   userRole: UserRole;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, role: "firm" | "accountant" | "client") => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, role: "firm" | "accountant" | "client" | "super_admin") => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }

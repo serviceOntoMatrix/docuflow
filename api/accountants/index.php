@@ -25,6 +25,20 @@ try {
                 exit;
             }
             
+            // SECURITY: Verify user belongs to this firm
+            $authStmt = $db->prepare("
+                SELECT id FROM firms WHERE id = ? AND owner_id = ?
+                UNION
+                SELECT firm_id FROM firm_accountants WHERE firm_id = ? AND accountant_id = ?
+            ");
+            $authStmt->execute([$firmId, $user['user_id'], $firmId, $user['user_id']]);
+            $isSuperAdmin = isset($user['role']) && $user['role'] === 'super_admin';
+            if (!$authStmt->fetch() && !$isSuperAdmin) {
+                http_response_code(403);
+                echo json_encode(['error' => 'Access denied to this firm']);
+                exit;
+            }
+            
             $stmt = $db->prepare("
                 SELECT fa.*, u.email, u.full_name, u.phone, u.avatar_url
                 FROM firm_accountants fa
